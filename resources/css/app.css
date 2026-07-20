@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+@plugin 'tailwindcss-animate';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+/*
+  The entire visual theme lives in globals.css — colors, radii, shadows,
+  gradients, spacing, and layout dimensions. This file is only the entry
+  point; do not add theme values here.
+*/
+@import './globals.css';

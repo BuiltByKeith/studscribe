@@ -1,0 +1,371 @@
+/* ==========================================================================
+   GLOBALS — the single source of truth for this application's visual theme.
+   ==========================================================================
+
+   Everything visual lives in this file: color, radius, shadow, gradient,
+   spacing, typography, and layout dimensions. No component should ever
+   hardcode a color literal, a hex value, or a magic pixel dimension.
+
+   ---------------------------------------------------------------------------
+   HOW THIS FILE IS ORGANIZED — three layers
+   ---------------------------------------------------------------------------
+
+   LAYER 1 — PRIMITIVES
+     Raw ramps with no meaning attached. `--brand-500` is just "a red";
+     it does not know it is the brand color. Components must NEVER reference
+     Layer 1 directly.
+
+   LAYER 2 — SEMANTIC
+     What the app *means*, not what it looks like: `--primary`, `--background`,
+     `--border`, `--destructive`. Each points at a Layer 1 primitive.
+     This is what shadcn primitives read.
+
+   LAYER 3 — COMPONENT
+     Values specific to one piece of chrome: `--header-height`,
+     `--sidebar-width`, `--nav-item-radius`, `--brand-gradient`.
+
+   TO RETHEME THE ENTIRE APP: edit the Layer 1 ramps. Layers 2 and 3 inherit
+   automatically. If changing `--brand-500` does not move every red surface
+   in the app, something has hardcoded a literal and broken the contract.
+
+   ---------------------------------------------------------------------------
+   BRAND RED vs DESTRUCTIVE RED — read this before adding red anywhere
+   ---------------------------------------------------------------------------
+
+   This theme is red-accented, which means the brand color and the "danger"
+   color are neighbors. They are kept distinguishable by BOTH shade and
+   treatment. The rule:
+
+     GRADIENT or TINT  ->  BRAND   (primary actions, brand mark, active nav)
+     FLAT DEEP RED     ->  DANGER  (sign out, field errors, delete account)
+
+   Destructive is never rendered as a gradient fill. Brand is never rendered
+   as flat deep red text. Breaking this makes "Sign out" look like the
+   primary call to action.
+
+   ---------------------------------------------------------------------------
+   LIGHT ONLY
+   ---------------------------------------------------------------------------
+
+   This theme has exactly one state. There is no `.dark` block and no `dark:`
+   variant — the `@custom-variant dark` declaration has been removed, so any
+   stray `dark:` utility left in the tree is inert.
+
+   To reintroduce dark mode later: restore `@custom-variant dark`, then add a
+   `.dark { }` block that overrides LAYER 2 ONLY. The layer split means you
+   never have to touch Layer 3 or any component.
+   ========================================================================== */
+
+/* ==========================================================================
+   LAYER 1 — PRIMITIVES
+   Raw values. Edit here to retheme. Never referenced by components.
+   ========================================================================== */
+
+:root {
+    /* Brand ramp — red. This is the accent that defines the product. */
+    --brand-50: hsl(0, 86%, 97%);
+    --brand-100: hsl(0, 86%, 94%);
+    --brand-200: hsl(0, 84%, 89%);
+    --brand-300: hsl(0, 82%, 80%);
+    --brand-400: hsl(0, 78%, 66%);
+    --brand-500: hsl(0, 72%, 51%);
+    --brand-600: hsl(0, 74%, 45%);
+    --brand-700: hsl(0, 74%, 42%);
+    --brand-800: hsl(0, 70%, 35%);
+    --brand-900: hsl(0, 66%, 28%);
+
+    /* Gradient stops — the brand's signature treatment. */
+    --brand-gradient-from: hsl(2, 80%, 56%);
+    --brand-gradient-to: hsl(0, 74%, 42%);
+
+    /* Neutral ramp — surfaces, text, borders. Slightly cool to match the
+       reference's light-gray canvas. */
+    --neutral-0: hsl(0, 0%, 100%);
+    --neutral-50: hsl(220, 20%, 97%);
+    --neutral-100: hsl(220, 16%, 95%);
+    --neutral-200: hsl(220, 13%, 91%);
+    --neutral-300: hsl(220, 12%, 84%);
+    --neutral-400: hsl(220, 9%, 65%);
+    --neutral-500: hsl(220, 9%, 46%);
+    --neutral-600: hsl(220, 12%, 36%);
+    --neutral-700: hsl(220, 18%, 26%);
+    --neutral-800: hsl(222, 32%, 17%);
+    --neutral-900: hsl(222, 47%, 11%);
+
+    /* Danger ramp — deliberately deeper and flatter than the brand ramp so
+       destructive treatments never read as a primary action. See the
+       brand-vs-destructive rule at the top of this file. */
+    --danger-50: hsl(0, 60%, 96%);
+    --danger-500: hsl(0, 62%, 41%);
+    --danger-600: hsl(0, 64%, 35%);
+
+    /* Success ramp — used only for positive status messages. Kept green so a
+       success message is never mistaken for an error in a red-accented UI. */
+    --success-50: hsl(150, 60%, 96%);
+    --success-500: hsl(152, 60%, 32%);
+    --success-600: hsl(152, 62%, 26%);
+}
+
+/* ==========================================================================
+   LAYER 2 — SEMANTIC
+   What the app means. This is the layer shadcn primitives read.
+   Points at Layer 1 — no raw values here.
+   ========================================================================== */
+
+:root {
+    /* Surfaces */
+    --background: var(--neutral-50); /* the content canvas */
+    --foreground: var(--neutral-900);
+    --surface: var(--neutral-0); /* sidebar, header, cards */
+    --card: var(--neutral-0);
+    --card-foreground: var(--neutral-900);
+    --popover: var(--neutral-0);
+    --popover-foreground: var(--neutral-900);
+
+    /* Brand */
+    --primary: var(--brand-500);
+    --primary-foreground: var(--neutral-0);
+    --primary-hover: var(--brand-600);
+    --primary-tint: var(--brand-100); /* active nav background */
+    --primary-tint-hover: var(--brand-200);
+
+    /* Neutral roles */
+    --secondary: var(--neutral-100);
+    --secondary-foreground: var(--neutral-800);
+    --muted: var(--neutral-100);
+    --muted-foreground: var(--neutral-500);
+    --accent: var(--neutral-100);
+    --accent-foreground: var(--neutral-800);
+    --subtle-foreground: var(--neutral-400); /* group labels, meta text */
+
+    /* Status */
+    --destructive: var(--danger-500);
+    --destructive-hover: var(--danger-600);
+    --destructive-tint: var(--danger-50);
+    --destructive-foreground: var(--neutral-0);
+    --success: var(--success-500);
+    --success-tint: var(--success-50);
+
+    /* Lines and focus */
+    --border: var(--neutral-200);
+    --input: var(--neutral-200);
+    --ring: var(--brand-500);
+
+    /* Sidebar — its own semantic set so the sidebar can diverge from the
+       canvas without touching global surface tokens. */
+    --sidebar-background: var(--neutral-0);
+    --sidebar-foreground: var(--neutral-700);
+    --sidebar-primary: var(--brand-500);
+    --sidebar-primary-foreground: var(--neutral-0);
+    --sidebar-accent: var(--primary-tint);
+    --sidebar-accent-foreground: var(--brand-600);
+    --sidebar-muted: var(--neutral-500);
+    --sidebar-border: var(--neutral-200);
+    --sidebar-ring: var(--brand-500);
+
+    /* Charts — kept on the brand ramp so data viz inherits the retheme. */
+    --chart-1: var(--brand-500);
+    --chart-2: var(--brand-300);
+    --chart-3: var(--neutral-600);
+    --chart-4: var(--neutral-400);
+    --chart-5: var(--brand-700);
+}
+
+/* ==========================================================================
+   LAYER 3 — COMPONENT
+   Chrome-specific values. Dimensions, gradients, shadows, typography scale.
+   ========================================================================== */
+
+:root {
+    /* Radius scale */
+    --radius: 0.5rem;
+    --radius-brand-tile: 0.625rem;
+    --nav-item-radius: 0.5rem;
+    --popover-radius: 0.75rem;
+
+    /* Layout dimensions */
+    --sidebar-width: 16rem;
+    --sidebar-width-icon: 3rem;
+    --sidebar-width-mobile: 18rem;
+    --header-height: 3.5rem;
+    --header-height-compact: 3rem;
+    --nav-item-height: 2.5rem;
+    --brand-tile-size: 2rem;
+    --avatar-size: 2rem;
+    --content-padding: 1.5rem;
+
+    /* The brand's signature treatment. Used on the brand mark and on the
+       `gradient` button variant. Never used for destructive actions. */
+    --brand-gradient: linear-gradient(135deg, var(--brand-gradient-from), var(--brand-gradient-to));
+
+    /* Avatar fallback tint */
+    --avatar-background: var(--brand-100);
+    --avatar-foreground: var(--brand-700);
+
+    /* Shadows */
+    --shadow-subtle: 0 1px 2px 0 hsl(222 47% 11% / 0.04);
+    --shadow-card: 0 1px 3px 0 hsl(222 47% 11% / 0.06), 0 1px 2px -1px hsl(222 47% 11% / 0.04);
+    --shadow-popover: 0 12px 32px -8px hsl(222 47% 11% / 0.14), 0 4px 12px -4px hsl(222 47% 11% / 0.08);
+    --shadow-brand: 0 4px 12px -2px hsl(0 72% 51% / 0.3);
+
+    /* Typography */
+    --font-sans:
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --group-label-size: 0.6875rem;
+    --group-label-tracking: 0.08em;
+
+    /* Inertia's top progress bar. Kept here so it retheme with everything
+       else — it is read by resources/js/app.tsx. */
+    --progress-color: var(--brand-500);
+}
+
+/* ==========================================================================
+   TAILWIND THEME MAPPING
+   Exposes the semantic layer to Tailwind's utility generator.
+
+   IMPORTANT: these MUST use the `var()` indirection, not literal values.
+   Inlining a literal here breaks runtime overridability and silently
+   defeats the whole point of the layer split.
+   ========================================================================== */
+
+@theme inline {
+    --font-sans: var(--font-sans);
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-nav: var(--nav-item-radius);
+    --radius-brand: var(--radius-brand-tile);
+    --radius-popover: var(--popover-radius);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-surface: var(--surface);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary-hover: var(--primary-hover);
+    --color-primary-tint: var(--primary-tint);
+    --color-primary-tint-hover: var(--primary-tint-hover);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-subtle-foreground: var(--subtle-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-hover: var(--destructive-hover);
+    --color-destructive-tint: var(--destructive-tint);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-success: var(--success);
+    --color-success-tint: var(--success-tint);
+
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar: var(--sidebar-background);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-muted: var(--sidebar-muted);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+
+    --color-avatar: var(--avatar-background);
+    --color-avatar-foreground: var(--avatar-foreground);
+
+    --shadow-subtle: var(--shadow-subtle);
+    --shadow-card: var(--shadow-card);
+    --shadow-popover: var(--shadow-popover);
+    --shadow-brand: var(--shadow-brand);
+
+    --spacing-header: var(--header-height);
+    --spacing-nav-item: var(--nav-item-height);
+    --spacing-brand-tile: var(--brand-tile-size);
+    --spacing-avatar: var(--avatar-size);
+    --spacing-content: var(--content-padding);
+}
+
+/* ==========================================================================
+   BASE
+   ========================================================================== */
+
+@layer base {
+    /* Tailwind v4 defaults the border color to `currentColor`. Pin it to the
+       theme's border token so an un-suffixed `border` utility is always the
+       right color. */
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--border);
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Focus rings read from the brand token so they retheme with everything
+       else rather than staying blue. */
+    :focus-visible {
+        outline-color: var(--ring);
+    }
+}
+
+/* ==========================================================================
+   SHARED UTILITIES
+   Reusable treatments that would otherwise be duplicated as long class
+   strings across components. Defined here so they retheme in one place.
+   ========================================================================== */
+
+@utility bg-brand-gradient {
+    background-image: var(--brand-gradient);
+}
+
+@utility text-brand-gradient {
+    background-image: var(--brand-gradient);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+@utility group-label {
+    font-size: var(--group-label-size);
+    font-weight: 600;
+    letter-spacing: var(--group-label-tracking);
+    text-transform: uppercase;
+    color: var(--subtle-foreground);
+}
