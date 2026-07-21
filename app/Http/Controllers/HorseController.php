@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreHorseRequest;
 use App\Models\Breed;
+use App\Models\BreedingRecord;
 use App\Models\Gender;
 use App\Models\Horse;
 use App\Models\Supplier;
@@ -137,6 +138,37 @@ class HorseController extends Controller
                     'diagnosis' => $r->diagnosis,
                     'treatment' => $r->treatment,
                     'notes' => $r->notes,
+                ]),
+
+            // Either side of the pairing -- this horse may appear as the
+            // stallion on one record and, if it were ever re-paired, would
+            // never be the mare on another (sex-filtered on the form), but the
+            // query covers both columns rather than assuming which one it is.
+            'breeding_records' => BreedingRecord::query()
+                ->where('stallion_id', $horse->id)
+                ->orWhere('mare_id', $horse->id)
+                ->with(['stallion:id,horse_name,horse_image', 'mare:id,horse_name,horse_image'])
+                ->orderByDesc('last_breeding_date')
+                ->orderByDesc('id')
+                ->get()
+                ->map(fn (BreedingRecord $b) => [
+                    'id' => $b->id,
+                    'stallion_name' => $b->stallion?->horse_name,
+                    'stallion_image' => $b->stallion?->imageUrl(),
+                    'mare_name' => $b->mare?->horse_name,
+                    'mare_image' => $b->mare?->imageUrl(),
+                    'last_breeding_date' => $b->last_breeding_date?->toDateString(),
+                    'cycle_1_date' => $b->cycle_1_date?->toDateString(),
+                    'cycle_1_day21_date' => $b->cycle_1_day21_date?->toDateString(),
+                    'cycle_1_notes' => $b->cycle_1_notes,
+                    'cycle_2_date' => $b->cycle_2_date?->toDateString(),
+                    'cycle_2_day21_date' => $b->cycle_2_day21_date?->toDateString(),
+                    'cycle_2_notes' => $b->cycle_2_notes,
+                    'cycle_3_date' => $b->cycle_3_date?->toDateString(),
+                    'cycle_3_day21_date' => $b->cycle_3_day21_date?->toDateString(),
+                    'cycle_3_notes' => $b->cycle_3_notes,
+                    'cycle_4_date' => $b->cycle_4_date?->toDateString(),
+                    'cycle_4_notes' => $b->cycle_4_notes,
                 ]),
         ];
     }

@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Controllers\BreedController;
+use App\Http\Controllers\BreedingRecordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GenderController;
 use App\Http\Controllers\HorseController;
 use App\Http\Controllers\MedicalRecordController;
 use App\Http\Controllers\MonitoringController;
+use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VaccinationController;
 use App\Http\Controllers\VaccineController;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +32,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('monitorings', MonitoringController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('medical-records', MedicalRecordController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::resource('vaccinations', VaccinationController::class)->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('breeding-records', BreedingRecordController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // Reference data
     Route::resource('breeds', BreedController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -36,9 +41,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('vaccines', VaccineController::class)->only(['index', 'store', 'update', 'destroy']);
 
     // Admin only. The gate is defined in AppServiceProvider.
-    Route::get('users', fn () => Inertia::render('users/index'))
-        ->middleware('can:admin')
-        ->name('users.index');
+    Route::middleware('can:admin')->group(function () {
+        Route::resource('users', UserController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('roles', RoleController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('permissions', PermissionController::class)->only(['index', 'store', 'update', 'destroy']);
+    });
 });
 
 require __DIR__.'/settings.php';

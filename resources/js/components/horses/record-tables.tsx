@@ -1,7 +1,8 @@
+import { HorseCell } from '@/components/horse-cell';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EMPTY, formatDateShort, formatMeasure, orEmpty } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { Star } from 'lucide-react';
+import { Star, StickyNote } from 'lucide-react';
 
 export interface MonitoringRecord {
     id: number;
@@ -36,10 +37,31 @@ export interface MedicalRecord {
     notes: string | null;
 }
 
+export interface BreedingRecordRow {
+    id: number;
+    stallion_name: string | null;
+    stallion_image: string | null;
+    mare_name: string | null;
+    mare_image: string | null;
+    last_breeding_date: string | null;
+    cycle_1_date: string | null;
+    cycle_1_day21_date: string | null;
+    cycle_1_notes: string | null;
+    cycle_2_date: string | null;
+    cycle_2_day21_date: string | null;
+    cycle_2_notes: string | null;
+    cycle_3_date: string | null;
+    cycle_3_day21_date: string | null;
+    cycle_3_notes: string | null;
+    cycle_4_date: string | null;
+    cycle_4_notes: string | null;
+}
+
 export interface HorseRecords {
     monitorings: MonitoringRecord[];
     vaccinations: VaccinationRecord[];
     medical_records: MedicalRecord[];
+    breeding_records: BreedingRecordRow[];
 }
 
 const SCORE_MAX = 10;
@@ -59,13 +81,10 @@ function ConditionScore({ score }: { score: number | null }) {
         <div className="flex items-center gap-1.5" title={`${score} out of ${SCORE_MAX}`}>
             <div className="flex items-center gap-px" aria-hidden="true">
                 {Array.from({ length: SCORE_MAX }, (_, index) => (
-                    <Star
-                        key={index}
-                        className={cn('size-3', index < score ? 'fill-primary text-primary' : 'fill-muted text-muted')}
-                    />
+                    <Star key={index} className={cn('size-3', index < score ? 'fill-primary text-primary' : 'fill-muted text-muted')} />
                 ))}
             </div>
-            <span className="text-xs font-semibold tabular-nums text-muted-foreground">
+            <span className="text-muted-foreground text-xs font-semibold tabular-nums">
                 {score}/{SCORE_MAX}
             </span>
         </div>
@@ -84,21 +103,21 @@ function Notes({ text }: { text: string | null }) {
     }
 
     return (
-        <span className="block max-w-64 truncate text-muted-foreground" title={text}>
+        <span className="text-muted-foreground block max-w-64 truncate" title={text}>
             {text}
         </span>
     );
 }
 
 function DateCell({ value }: { value: string | null }) {
-    return <span className="font-semibold whitespace-nowrap text-foreground">{formatDateShort(value)}</span>;
+    return <span className="text-foreground font-semibold whitespace-nowrap">{formatDateShort(value)}</span>;
 }
 
 /** Shared shell so the three tables sit identically inside their tab panel. */
 function RecordTable({ columns, children }: { columns: { key: string; className?: string }[]; children: React.ReactNode }) {
     return (
         <div className="p-6">
-            <div className="overflow-hidden rounded-popover border border-border">
+            <div className="rounded-popover border-border overflow-hidden border">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -144,7 +163,7 @@ export function MonitoringTable({ records }: { records: MonitoringRecord[] }) {
                     <TableCell>
                         <ConditionScore score={record.condition_score} />
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">{orEmpty(record.checked_by)}</TableCell>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">{orEmpty(record.checked_by)}</TableCell>
                     <TableCell>
                         <Notes text={record.notes} />
                     </TableCell>
@@ -164,22 +183,94 @@ export function VaccinationTable({ records }: { records: VaccinationRecord[] }) 
                     </TableCell>
                     <TableCell>
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-medium whitespace-nowrap text-foreground">{orEmpty(record.vaccine)}</span>
+                            <span className="text-foreground font-medium whitespace-nowrap">{orEmpty(record.vaccine)}</span>
                             {record.dosage && (
-                                <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">{record.dosage}</span>
+                                <span className="bg-muted text-muted-foreground rounded-full px-2 py-0.5 text-xs font-medium">{record.dosage}</span>
                             )}
                             {/* An overdue booster is the one thing on this row
                                 that needs acting on, so it is called out. */}
                             {record.is_overdue && (
-                                <span className="rounded-full bg-destructive-tint px-2 py-0.5 text-xs font-semibold text-destructive">
+                                <span className="bg-destructive-tint text-destructive rounded-full px-2 py-0.5 text-xs font-semibold">
                                     Booster overdue
                                 </span>
                             )}
                         </div>
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">{orEmpty(record.administered_by)}</TableCell>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">{orEmpty(record.administered_by)}</TableCell>
                     <TableCell>
                         <Notes text={record.notes} />
+                    </TableCell>
+                </TableRow>
+            ))}
+        </RecordTable>
+    );
+}
+
+/** Cycle or 21st-day date, with a notes indicator when that cycle has one. */
+function CycleDate({ date, notes }: { date: string | null; notes?: string | null }) {
+    if (!date) {
+        return <span className="text-muted-foreground">{EMPTY}</span>;
+    }
+
+    return (
+        <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+            {formatDateShort(date)}
+            {notes && (
+                <span title={notes} aria-label="Has notes">
+                    <StickyNote className="text-muted-foreground size-3.5 shrink-0" />
+                </span>
+            )}
+        </span>
+    );
+}
+
+export function BreedingTable({ records }: { records: BreedingRecordRow[] }) {
+    return (
+        <RecordTable
+            columns={[
+                { key: 'Stallion' },
+                { key: 'Mare' },
+                { key: 'Last Breeding' },
+                { key: '1st Cycle' },
+                { key: '21st Day' },
+                { key: '2nd Cycle' },
+                { key: '21st Day' },
+                { key: '3rd Cycle' },
+                { key: '21st Day' },
+                { key: '4th Cycle' },
+            ]}
+        >
+            {records.map((record) => (
+                <TableRow key={record.id}>
+                    <TableCell>
+                        <HorseCell name={record.stallion_name} image={record.stallion_image} />
+                    </TableCell>
+                    <TableCell>
+                        <HorseCell name={record.mare_name} image={record.mare_image} />
+                    </TableCell>
+                    <TableCell>
+                        <DateCell value={record.last_breeding_date} />
+                    </TableCell>
+                    <TableCell>
+                        <CycleDate date={record.cycle_1_date} notes={record.cycle_1_notes} />
+                    </TableCell>
+                    <TableCell>
+                        <CycleDate date={record.cycle_1_day21_date} />
+                    </TableCell>
+                    <TableCell>
+                        <CycleDate date={record.cycle_2_date} notes={record.cycle_2_notes} />
+                    </TableCell>
+                    <TableCell>
+                        <CycleDate date={record.cycle_2_day21_date} />
+                    </TableCell>
+                    <TableCell>
+                        <CycleDate date={record.cycle_3_date} notes={record.cycle_3_notes} />
+                    </TableCell>
+                    <TableCell>
+                        <CycleDate date={record.cycle_3_day21_date} />
+                    </TableCell>
+                    <TableCell>
+                        <CycleDate date={record.cycle_4_date} notes={record.cycle_4_notes} />
                     </TableCell>
                 </TableRow>
             ))}
@@ -195,14 +286,14 @@ export function MedicalTable({ records }: { records: MedicalRecord[] }) {
                     <TableCell>
                         <DateCell value={record.visit_date} />
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">{orEmpty(record.veterinarian)}</TableCell>
+                    <TableCell className="text-muted-foreground whitespace-nowrap">{orEmpty(record.veterinarian)}</TableCell>
                     <TableCell>
-                        <span className="block max-w-56 truncate font-medium text-foreground" title={record.diagnosis ?? undefined}>
+                        <span className="text-foreground block max-w-56 truncate font-medium" title={record.diagnosis ?? undefined}>
                             {orEmpty(record.diagnosis)}
                         </span>
                     </TableCell>
                     <TableCell>
-                        <span className="block max-w-56 truncate text-muted-foreground" title={record.treatment ?? undefined}>
+                        <span className="text-muted-foreground block max-w-56 truncate" title={record.treatment ?? undefined}>
                             {orEmpty(record.treatment)}
                         </span>
                     </TableCell>

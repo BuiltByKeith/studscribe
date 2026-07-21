@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\HorseFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Horse extends Model
 {
-    /** @use HasFactory<\Database\Factories\HorseFactory> */
+    /** @use HasFactory<HorseFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -95,6 +96,26 @@ class Horse extends Model
     }
 
     /**
+     * Breeding records where this horse is the stallion.
+     *
+     * @return HasMany<BreedingRecord, $this>
+     */
+    public function breedingRecordsAsStallion(): HasMany
+    {
+        return $this->hasMany(BreedingRecord::class, 'stallion_id');
+    }
+
+    /**
+     * Breeding records where this horse is the mare.
+     *
+     * @return HasMany<BreedingRecord, $this>
+     */
+    public function breedingRecordsAsMare(): HasMany
+    {
+        return $this->hasMany(BreedingRecord::class, 'mare_id');
+    }
+
+    /**
      * The most recent monitoring reading.
      *
      * Defined as a relation rather than a scope so it can be eager-loaded --
@@ -155,7 +176,7 @@ class Horse extends Model
      * need de-duplication, since a horse can appear under both when its parents
      * are the same animal recorded twice.
      *
-     * @return \Illuminate\Database\Eloquent\Builder<Horse>
+     * @return Builder<Horse>
      */
     public function offspring(): Builder
     {
@@ -169,7 +190,7 @@ class Horse extends Model
      * Half-siblings count: sharing a single parent is still a sibling
      * relationship, and on a stud farm it is the common case.
      *
-     * @return \Illuminate\Database\Eloquent\Builder<Horse>
+     * @return Builder<Horse>
      */
     public function siblings(): Builder
     {

@@ -146,6 +146,28 @@
     --success: var(--success-500);
     --success-tint: var(--success-50);
 
+    /* Categorical — hues with no brand or status meaning, used to tell unrelated
+       groups apart at a glance: stat-card icon tiles, breed/gender badges, and
+       the pedigree tree's sire/dam line coding. Each pair is a light tint for
+       the background and a deeper foreground for icons/text on that tint,
+       following the same tint+fg shape as the status tokens above. */
+    --cat-blue-tint: hsl(214, 95%, 93%);
+    --cat-blue-fg: hsl(217, 91%, 40%);
+    --cat-pink-tint: hsl(326, 78%, 95%);
+    --cat-pink-fg: hsl(333, 71%, 43%);
+    --cat-violet-tint: hsl(270, 91%, 95%);
+    --cat-violet-fg: hsl(272, 72%, 47%);
+    --cat-indigo-tint: hsl(226, 100%, 94%);
+    --cat-indigo-fg: hsl(243, 75%, 49%);
+    --cat-teal-tint: hsl(166, 76%, 92%);
+    --cat-teal-fg: hsl(175, 84%, 25%);
+    --cat-emerald-tint: hsl(152, 76%, 92%);
+    --cat-emerald-fg: hsl(158, 64%, 27%);
+    --cat-amber-tint: hsl(48, 96%, 89%);
+    --cat-amber-fg: hsl(32, 81%, 33%);
+    --cat-slate-tint: hsl(210, 20%, 93%);
+    --cat-slate-fg: hsl(215, 19%, 35%);
+
     /* Lines and focus */
     --border: var(--neutral-200);
     --input: var(--neutral-200);
@@ -271,6 +293,23 @@
 
     --color-success: var(--success);
     --color-success-tint: var(--success-tint);
+
+    --color-cat-blue-tint: var(--cat-blue-tint);
+    --color-cat-blue-fg: var(--cat-blue-fg);
+    --color-cat-pink-tint: var(--cat-pink-tint);
+    --color-cat-pink-fg: var(--cat-pink-fg);
+    --color-cat-violet-tint: var(--cat-violet-tint);
+    --color-cat-violet-fg: var(--cat-violet-fg);
+    --color-cat-indigo-tint: var(--cat-indigo-tint);
+    --color-cat-indigo-fg: var(--cat-indigo-fg);
+    --color-cat-teal-tint: var(--cat-teal-tint);
+    --color-cat-teal-fg: var(--cat-teal-fg);
+    --color-cat-emerald-tint: var(--cat-emerald-tint);
+    --color-cat-emerald-fg: var(--cat-emerald-fg);
+    --color-cat-amber-tint: var(--cat-amber-tint);
+    --color-cat-amber-fg: var(--cat-amber-fg);
+    --color-cat-slate-tint: var(--cat-slate-tint);
+    --color-cat-slate-fg: var(--cat-slate-fg);
 
     --color-border: var(--border);
     --color-input: var(--input);

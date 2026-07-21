@@ -1,11 +1,11 @@
 import { BreedBadge, GenderBadge, SexBadge } from '@/components/horses/attribute-badges';
 import { PedigreeTree, type Pedigree, type PedigreeNode } from '@/components/horses/pedigree-tree';
-import { MedicalTable, MonitoringTable, VaccinationTable, type HorseRecords } from '@/components/horses/record-tables';
+import { BreedingTable, MedicalTable, MonitoringTable, VaccinationTable, type HorseRecords } from '@/components/horses/record-tables';
 import { Button } from '@/components/ui/button';
 import { TabEmpty, TabList, TabPanel, type TabDefinition } from '@/components/ui/tabs';
+import AppLayout from '@/layouts/app-layout';
 import { formatAge, formatDate, formatPercent, orEmpty } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
 import {
     Activity,
@@ -17,6 +17,7 @@ import {
     Dna,
     GitBranch,
     Hash,
+    Heart,
     Palette,
     Stethoscope,
     Syringe,
@@ -56,13 +57,14 @@ export default function HorseShow({ horse, pedigree, records }: { horse: HorseDe
         { value: 'monitoring', label: 'Monitoring', icon: Activity, badge: records.monitorings.length },
         { value: 'vaccination', label: 'Vaccination Record', icon: Syringe, badge: records.vaccinations.length },
         { value: 'medical', label: 'Medical Record', icon: Stethoscope, badge: records.medical_records.length },
+        { value: 'breeding', label: 'Breeding Record', icon: Heart, badge: records.breeding_records.length },
     ];
 
     return (
         <AppLayout>
             <Head title={horse.horse_name} />
 
-            <div className="flex flex-1 flex-col gap-6 p-content">
+            <div className="p-content flex flex-1 flex-col gap-6">
                 {/* Back sits at the far left, with the page identity beside it. */}
                 <div className="flex items-center gap-4">
                     <Button asChild variant="outline" size="icon" className="size-10 shrink-0">
@@ -72,8 +74,8 @@ export default function HorseShow({ horse, pedigree, records }: { horse: HorseDe
                     </Button>
 
                     <div className="min-w-0 space-y-0.5">
-                        <h1 className="truncate text-2xl font-bold tracking-tight text-foreground">Horse Details</h1>
-                        <p className="text-sm text-muted-foreground">Full detail of the horse.</p>
+                        <h1 className="text-foreground truncate text-2xl font-bold tracking-tight">Horse Details</h1>
+                        <p className="text-muted-foreground text-sm">Full detail of the horse.</p>
                     </div>
                 </div>
 
@@ -83,22 +85,22 @@ export default function HorseShow({ horse, pedigree, records }: { horse: HorseDe
                         already as tall as the details panel -- centring the
                         content vertically is what removes the dead space that
                         left. */}
-                    <section className="flex flex-col justify-center rounded-popover border border-border bg-surface p-6 shadow-card lg:col-span-1">
+                    <section className="rounded-popover border-border bg-surface shadow-card flex flex-col justify-center border p-6 lg:col-span-1">
                         <div className="flex flex-col items-center text-center">
                             {/* Gradient ring, then a thin surface gap, then the
                                 photo -- the inset keeps the gradient reading as
                                 a border rather than bleeding into the image. */}
-                            <div className="bg-brand-gradient size-48 shrink-0 rounded-full p-[3px] shadow-brand">
-                                <div className="size-full rounded-full bg-surface p-1">
+                            <div className="bg-brand-gradient shadow-brand size-48 shrink-0 rounded-full p-[3px]">
+                                <div className="bg-surface size-full rounded-full p-1">
                                     <img
                                         src={horse.horse_image ?? PLACEHOLDER_IMAGE}
                                         alt={horse.horse_name}
-                                        className="size-full rounded-full bg-muted object-cover"
+                                        className="bg-muted size-full rounded-full object-cover"
                                     />
                                 </div>
                             </div>
 
-                            <h2 className="mt-5 text-2xl font-bold tracking-tight text-balance text-foreground">{horse.horse_name}</h2>
+                            <h2 className="text-foreground mt-5 text-2xl font-bold tracking-tight text-balance">{horse.horse_name}</h2>
 
                             <span
                                 className={cn(
@@ -119,13 +121,13 @@ export default function HorseShow({ horse, pedigree, records }: { horse: HorseDe
                     {/* `overflow-hidden` so the grid's bg-border hairline layer,
                         which is square-cornered, gets clipped to the card's
                         radius instead of squaring off the bottom corners. */}
-                    <section className="overflow-hidden rounded-popover border border-border bg-surface shadow-card lg:col-span-2">
-                        <header className="border-b border-border px-6 py-4">
-                            <h3 className="text-base font-semibold text-foreground">Details</h3>
-                            <p className="text-sm text-muted-foreground">Registration, lineage, and acquisition record.</p>
+                    <section className="rounded-popover border-border bg-surface shadow-card overflow-hidden border lg:col-span-2">
+                        <header className="border-border border-b px-6 py-4">
+                            <h3 className="text-foreground text-base font-semibold">Details</h3>
+                            <p className="text-muted-foreground text-sm">Registration, lineage, and acquisition record.</p>
                         </header>
 
-                        <dl className="grid gap-px overflow-hidden bg-border sm:grid-cols-2">
+                        <dl className="bg-border grid gap-px overflow-hidden sm:grid-cols-2">
                             <DetailRow icon={Hash} label="Registration number">
                                 {orEmpty(horse.registration_no)}
                             </DetailRow>
@@ -163,15 +165,19 @@ export default function HorseShow({ horse, pedigree, records }: { horse: HorseDe
                             </DetailRow>
 
                             <DetailRow icon={CalendarOff} label="Retired" className="sm:col-span-2">
-                                {horse.retirement_date ? formatDate(horse.retirement_date) : <span className="text-muted-foreground">Still active</span>}
+                                {horse.retirement_date ? (
+                                    formatDate(horse.retirement_date)
+                                ) : (
+                                    <span className="text-muted-foreground">Still active</span>
+                                )}
                             </DetailRow>
                         </dl>
                     </section>
                 </div>
 
                 {/* Records ------------------------------------------------ */}
-                <section className="overflow-hidden rounded-popover border border-border bg-surface shadow-card">
-                    <div className="border-b border-border bg-muted/40">
+                <section className="rounded-popover border-border bg-surface shadow-card overflow-hidden border">
+                    <div className="border-border bg-muted/40 border-b">
                         <TabList tabs={tabs} value={tab} onValueChange={setTab} />
                     </div>
 
@@ -232,6 +238,17 @@ export default function HorseShow({ horse, pedigree, records }: { horse: HorseDe
                                     description="Veterinary visits, diagnoses, and treatments for this horse will appear here."
                                 />
                             ))}
+
+                        {tab === 'breeding' &&
+                            (records.breeding_records.length > 0 ? (
+                                <BreedingTable records={records.breeding_records} />
+                            ) : (
+                                <TabEmpty
+                                    icon={Heart}
+                                    title="No breeding records"
+                                    description="Pairings this horse is part of, and their cycle progress, will appear here."
+                                />
+                            ))}
                     </TabPanel>
                 </section>
             </div>
@@ -247,12 +264,12 @@ function RelatedGrid({ nodes }: { nodes: PedigreeNode[] }) {
                 <Link
                     key={node.id}
                     href={route('horses.show', node.id!)}
-                    className="flex items-center gap-3 rounded-popover border border-border bg-surface p-3 shadow-subtle transition-colors hover:border-primary/40 hover:bg-muted"
+                    className="rounded-popover border-border bg-surface shadow-subtle hover:border-primary/40 hover:bg-muted flex items-center gap-3 border p-3 transition-colors"
                 >
                     <img src={node.horse_image ?? PLACEHOLDER_IMAGE} alt="" className="size-11 shrink-0 rounded-full object-cover" />
                     <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-foreground">{node.horse_name}</p>
-                        <p className="truncate text-xs text-muted-foreground">
+                        <p className="text-foreground truncate text-sm font-bold">{node.horse_name}</p>
+                        <p className="text-muted-foreground truncate text-xs">
                             {[node.kinship, node.breed, node.birth_date ? formatAge(node.birth_date) : null].filter(Boolean).join(' · ') ||
                                 'No details'}
                         </p>
@@ -281,15 +298,15 @@ interface DetailRowProps {
  */
 function DetailRow({ icon: Icon, label, hint, className, children }: DetailRowProps) {
     return (
-        <div className={cn('flex items-start gap-3 bg-surface px-6 py-4', className)}>
-            <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+        <div className={cn('bg-surface flex items-start gap-3 px-6 py-4', className)}>
+            <span className="bg-muted text-muted-foreground mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg">
                 <Icon className="size-4" />
             </span>
 
             <div className="min-w-0 space-y-1">
                 <dt className="group-label">{label}</dt>
-                <dd className="text-sm font-semibold text-foreground">{children}</dd>
-                {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+                <dd className="text-foreground text-sm font-semibold">{children}</dd>
+                {hint && <p className="text-muted-foreground text-xs">{hint}</p>}
             </div>
         </div>
     );

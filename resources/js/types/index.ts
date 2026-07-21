@@ -165,6 +165,58 @@ export interface MedicalRecordRow {
     notes: string | null;
 }
 
+/** A breeding record as rendered in the breeding records table. */
+export interface BreedingRecordRow {
+    id: number;
+    stallion_id: number;
+    stallion_name: string | null;
+    stallion_image: string | null;
+    mare_id: number;
+    mare_name: string | null;
+    mare_image: string | null;
+    last_breeding_date: string | null;
+    cycle_1_date: string | null;
+    cycle_1_day21_date: string | null;
+    cycle_1_notes: string | null;
+    cycle_2_date: string | null;
+    cycle_2_day21_date: string | null;
+    cycle_2_notes: string | null;
+    cycle_3_date: string | null;
+    cycle_3_day21_date: string | null;
+    cycle_3_notes: string | null;
+    cycle_4_date: string | null;
+    cycle_4_notes: string | null;
+}
+
+/** Select options for the breeding record form. */
+export interface BreedingRecordFormOptions {
+    stallions: HorseOption[];
+    mares: HorseOption[];
+}
+
+/** A permission as rendered in the permissions table. */
+export interface PermissionRow {
+    id: number;
+    title: string;
+    roles_count: number;
+}
+
+/** A role as rendered in the roles table. */
+export interface RoleRow {
+    id: number;
+    title: string;
+    permissions: { id: number; title: string }[];
+    users_count: number;
+}
+
+/** A staff account as rendered in the users table. */
+export interface UserRow {
+    id: number;
+    name: string;
+    email: string;
+    roles: { id: number; title: string }[];
+}
+
 export interface NavGroup {
     title: string;
     items: NavItem[];
@@ -175,6 +227,8 @@ export interface NavItem {
     url: string;
     icon?: LucideIcon | null;
     isActive?: boolean;
+    /** Child links rendered as a collapsible submenu, e.g. User Management's Users/Roles/Permissions. */
+    items?: NavItem[];
 }
 
 /** One-shot messages set by a controller redirect, read once then gone. */
